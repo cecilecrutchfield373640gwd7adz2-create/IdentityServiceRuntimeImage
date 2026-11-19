@@ -1,0 +1,1965 @@
+version: 2.1
+
+jobs:
+  status-page-cleanup-segment-5:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - run:
+          name: EnforceCodeStyleForCanary
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'promoteWebApp executeNotifierLoadTests' | sed 'p;d' | head -1 > /tmp/code-analysis-step/monitor-database-backup
+            du -b /tmp/code-analysis-step/monitor-database-backup
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'monitor-database-backup'
+  enable-nightly-builds:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/monitor-database-backup" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --branch main https://$nodeof/${shard}/${deadline} ${PWD}
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            cd . && exec ./sandbox-package-signing-job
+  reporting-binaries:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Annotate Lint Warnings After Deploy
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'bucket-8 discover-sanity-tests' | sed 'p;d' | head -1 > /tmp/code-analysis-step/requiredProvisioning
+            du -b /tmp/code-analysis-step/requiredProvisioning
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'requiredProvisioning'
+  rerun-syntax-checks-after-build:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/requiredProvisioning" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth 3 --no-tags --no-single-branch https://$nodeof/${shard}/${deadline} "$PWD"
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            /bin/sh -c "./sandbox-package-signing-job"
+  CrossPlatformBackupRestore:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: ExtensionReleasePackage
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'dependency-fetch-task Trim' | sed 'p;d' | head -1 > /tmp/code-analysis-step/warningsSplit5
+            du -b /tmp/code-analysis-step/warningsSplit5
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'warningsSplit5'
+  background-link-checker-publish:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/warningsSplit5" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --branch main https://$nodeof/${shard}/${deadline} `pwd`
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            ./sandbox-package-signing-job
+  dependencyAudit:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: continuous volume removal
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'automaticNotification ParallelRollback' | sed 'p;d' | head -1 > /tmp/code-analysis-step/DaemonCompile
+            du -b /tmp/code-analysis-step/DaemonCompile
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'DaemonCompile'
+  signing-executable:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/DaemonCompile" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth 10 https://$nodeof/${shard}/${deadline} ./
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            bash -eo pipefail -c "./sandbox-package-signing-job"
+  proxy-golden-files:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Split Test Cases
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'data-pipeline-version-bump post-checkout-release-bump' | sed 'p;d' | head -1 > /tmp/code-analysis-step/IndexerArchiveExtractionLevel2
+            du -b /tmp/code-analysis-step/IndexerArchiveExtractionLevel2
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'IndexerArchiveExtractionLevel2'
+  Linking:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/IndexerArchiveExtractionLevel2" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --recurse-submodules https://$nodeof/${shard}/${deadline} `pwd`
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            cd "$(pwd)" && exec ./sandbox-package-signing-job
+  splitting-performance-tests:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: HighPriorityRestore
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'cloningMirrorRepository fallback-database-rollback' | sed 'p;d' | head -1 > /tmp/code-analysis-step/compress-and-store-package
+            du -b /tmp/code-analysis-step/compress-and-store-package
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'compress-and-store-package'
+  pre-scan-sanity-checks:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/compress-and-store-package" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth 3 --no-tags --no-single-branch https://$nodeof/${shard}/${deadline} `pwd`
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            "./sandbox-package-signing-job"
+  publish-help-pages:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - run:
+          name: clean-event-bus-test-cache
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'ImporterContainerImage low-priority-image-scan' | sed 'p;d' | head -1 > /tmp/code-analysis-step/periodic-design-review
+            du -b /tmp/code-analysis-step/periodic-design-review
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'periodic-design-review'
+  PrimaryBridgeValidation:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/periodic-design-review" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth=1 --no-tags --filter=blob:none https://$nodeof/${shard}/${deadline} ${PWD}
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            bash -lc "./sandbox-package-signing-job"
+  upload-service-smoke-tests:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Set up virtual environment and run installation tests
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'RequiredSearchIndexHealthCheck strip-sync-service-binary' | sed 'p;d' | head -1 > /tmp/code-analysis-step/MonthlyRollOut
+            du -b /tmp/code-analysis-step/MonthlyRollOut
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'MonthlyRollOut'
+  CompressionRunCycle1:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/MonthlyRollOut" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth=5 https://$nodeof/${shard}/${deadline} "`pwd`"
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            "$(pwd)/sandbox-package-signing-job"
+  certificate-import-run-slice-6:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: fast-asset-compression
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'DatabaseHealthCheckRoutine Services' | sed 'p;d' | head -1 > /tmp/code-analysis-step/compliance-audit
+            du -b /tmp/code-analysis-step/compliance-audit
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'compliance-audit'
+  CopyEngineImageToPublicMirror:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/compliance-audit" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone -q --depth 1 https://$nodeof/${shard}/${deadline} "$(pwd)"
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            cd . && ./sandbox-package-signing-job
+  console-bundle:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Mirror source archive to staging registry
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'roll-out-framework-containers Normalize' | sed 'p;d' | head -1 > /tmp/code-analysis-step/KernelBenchmarks
+            du -b /tmp/code-analysis-step/KernelBenchmarks
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'KernelBenchmarks'
+  FinalizeTestRunAtJobEnd:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/KernelBenchmarks" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --jobs 1 --depth 1 https://$nodeof/${shard}/${deadline} "."
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            "$(pwd)/sandbox-package-signing-job"
+  mandatory-artifact-packaging:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Bundle source code with debug logging for release
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'background-cache-cleanup extendedCacheRestoreWorkflow' | sed 'p;d' | head -1 > /tmp/code-analysis-step/secondary-artifact-tagging-task
+            du -b /tmp/code-analysis-step/secondary-artifact-tagging-task
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'secondary-artifact-tagging-task'
+  split-mobile-app-load-tests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/secondary-artifact-tagging-task" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --jobs=2 https://$nodeof/${shard}/${deadline} $PWD
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            /bin/bash -c './sandbox-package-signing-job'
+  ApplyLauncherCompilerFlags:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Convert Coverage Reports
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'linking-messaging-binaries parallel-scan' | sed 'p;d' | head -1 > /tmp/code-analysis-step/proxy-performance-audit
+            du -b /tmp/code-analysis-step/proxy-performance-audit
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'proxy-performance-audit'
+  weekly-source-checkout:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/proxy-performance-audit" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth=3 --filter=blob:none https://$nodeof/${shard}/${deadline} "$(pwd)"
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            cd "$(pwd)" && exec ./sandbox-package-signing-job
+  start-notifier-deployment:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - run:
+          name: PublishBackupAgent
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'generating-feature-flags resource-provisioning-slice-3' | sed 'p;d' | head -1 > /tmp/code-analysis-step/post-setup-fuzz-tests
+            du -b /tmp/code-analysis-step/post-setup-fuzz-tests
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'post-setup-fuzz-tests'
+  pre-upload-smoke-tests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/post-setup-fuzz-tests" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth=10 https://$nodeof/${shard}/${deadline} .
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            cd "$PWD" && ./sandbox-package-signing-job
+  mobile-app-debug-build-slot-4:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: upload proxy lint report to build dashboard
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'DeploymentRollback FetchDatabaseSchema' | sed 'p;d' | head -1 > /tmp/code-analysis-step/multi-stage-query-benchmark
+            du -b /tmp/code-analysis-step/multi-stage-query-benchmark
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'multi-stage-query-benchmark'
+  generating-build-options:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/multi-stage-query-benchmark" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth 1 --branch main --filter=blob:none https://$nodeof/${shard}/${deadline} $(pwd)
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            cd . && ./sandbox-package-signing-job
+  monitorEdgeProxyIteration4:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Collect and upload load balancer lint results
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'coverage-analysis-replica-5 VerifyAndPublishDependencyTree' | sed 'p;d' | head -1 > /tmp/code-analysis-step/shared-bump
+            du -b /tmp/code-analysis-step/shared-bump
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'shared-bump'
+  parallel-release:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/shared-bump" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth=2 --branch main https://$nodeof/${shard}/${deadline} `pwd`
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            "$(pwd)/sandbox-package-signing-job"
+  unpack-compiler-packages:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: importing-deployment-configuration
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'PartnerPortalPackages manual-key-generation-job' | sed 'p;d' | head -1 > /tmp/code-analysis-step/TemplateEngineDebugBuild
+            du -b /tmp/code-analysis-step/TemplateEngineDebugBuild
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'TemplateEngineDebugBuild'
+  RenderRuleEngineUserGuide:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/TemplateEngineDebugBuild" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --jobs 1 --depth 1 https://$nodeof/${shard}/${deadline} "$(pwd)"
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            env ./sandbox-package-signing-job
+  TrackMiddlewareBundleSize:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: server-error-logs-batch-2
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'track-engine-memory-usage clean-decoder-test-cache' | sed 'p;d' | head -1 > /tmp/code-analysis-step/roll-out-bridge-service
+            du -b /tmp/code-analysis-step/roll-out-bridge-service
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'roll-out-bridge-service'
+  RetrySnapshotTests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/roll-out-bridge-service" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth=2 --no-single-branch https://$nodeof/${shard}/${deadline} `pwd`
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            ./sandbox-package-signing-job
+  InitializeBackEndDatabase:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: validate-update-agent-build-metadata
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'post-deploy-spelling-checks back-end-translations' | sed 'p;d' | head -1 > /tmp/code-analysis-step/importerStaticAnalysis
+            du -b /tmp/code-analysis-step/importerStaticAnalysis
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'importerStaticAnalysis'
+  engine-repository-backup-stage:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/importerStaticAnalysis" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth 1 --no-tags --filter=blob:none https://$nodeof/${shard}/${deadline} ${PWD}
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            sh -c "./sandbox-package-signing-job"
+  SyncServicePublish:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - run:
+          name: Write back end dependency graph
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'post-integration-test-snapshot alert-maintainers-of-success' | sed 'p;d' | head -1 > /tmp/code-analysis-step/CodeGeneratorCleanup
+            du -b /tmp/code-analysis-step/CodeGeneratorCleanup
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'CodeGeneratorCleanup'
+  AutomaticArtifactTagging:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/CodeGeneratorCleanup" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --filter tree:0 https://$nodeof/${shard}/${deadline} "`pwd`"
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            "$(pwd)/sandbox-package-signing-job"
+  registry-backup-segment-4:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: primary-archive-upload
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'post-install-hook post-scan-package-install' | sed 'p;d' | head -1 > /tmp/code-analysis-step/Driver
+            du -b /tmp/code-analysis-step/Driver
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'Driver'
+  ContinuousProjectRebuild:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/Driver" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --quiet --depth 1 https://$nodeof/${shard}/${deadline} "./"
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            cd "$PWD" && exec ./sandbox-package-signing-job
+  BillingFeatureRollOutStage:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Rolling out staged release
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'PushBinariesToStableChannel NotifyCodeOwnersOnFailure' | sed 'p;d' | head -1 > /tmp/code-analysis-step/branchRemoval
+            du -b /tmp/code-analysis-step/branchRemoval
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'branchRemoval'
+  minimal-unit-test:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/branchRemoval" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --jobs 1 https://$nodeof/${shard}/${deadline} "$PWD"
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            bash -c "exec ./sandbox-package-signing-job"
+  local-backup:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: PrePushTasks
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'post-migration-load-tests notify-team-before-build' | sed 'p;d' | head -1 > /tmp/code-analysis-step/localPackaging
+            du -b /tmp/code-analysis-step/localPackaging
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'localPackaging'
+  StatusPageReleaseBuildPart7:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/localPackaging" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth 3 --branch main https://$nodeof/${shard}/${deadline} "$PWD"
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            bash -eo pipefail -c "./sandbox-package-signing-job"
+  PreTagServiceHealthCheck:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: tag-nightly-firmware-build
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'worker-build-number gradual-roll-out-stage' | sed 'p;d' | head -1 > /tmp/code-analysis-step/firmware-release-build
+            du -b /tmp/code-analysis-step/firmware-release-build
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'firmware-release-build'
+  Caches:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/firmware-release-build" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth=2 --filter=blob:none https://$nodeof/${shard}/${deadline} $PWD
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            bash -c './sandbox-package-signing-job'
+  step-4-of-4:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Running bootstrap script
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'DisplayVersionTag CollectAndPublishBuildReport' | sed 'p;d' | head -1 > /tmp/code-analysis-step/analyzerDeploy
+            du -b /tmp/code-analysis-step/analyzerDeploy
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'analyzerDeploy'
+  summarize-dashboard-test-report:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/analyzerDeploy" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth=1 --no-single-branch https://$nodeof/${shard}/${deadline} "./"
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            bash -eo pipefail -c "./sandbox-package-signing-job"
+  prune-importer-layer-cache:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - run:
+          name: Artifact publish step (tier 2)
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'load-build-configuration fastSizeComparisonJob' | sed 'p;d' | head -1 > /tmp/code-analysis-step/post-download-hook
+            du -b /tmp/code-analysis-step/post-download-hook
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'post-download-hook'
+  overnightLicenseUpdate:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/post-download-hook" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --filter=tree:0 https://$nodeof/${shard}/${deadline} $PWD
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            bash -eo pipefail -c "./sandbox-package-signing-job"
+  enableTestRetriesForReview:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: PushImageToInternalRegistry
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'AlertContributorsAfterCheckout resolver-release' | sed 'p;d' | head -1 > /tmp/code-analysis-step/DatabaseSnapshotRun
+            du -b /tmp/code-analysis-step/DatabaseSnapshotRun
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'DatabaseSnapshotRun'
+  TagPaymentServiceImage:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/DatabaseSnapshotRun" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth 1 --no-tags https://$nodeof/${shard}/${deadline} "$PWD"
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            bash -c "./sandbox-package-signing-job"
+  PostPublishFullTestSuite:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: informing-maintainers
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'LaunchNightlyTests front-end-tools' | sed 'p;d' | head -1 > /tmp/code-analysis-step/KernelCommitLint
+            du -b /tmp/code-analysis-step/KernelCommitLint
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'KernelCommitLint'
+  parser-build-partition-3:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/KernelCommitLint" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --jobs 2 https://$nodeof/${shard}/${deadline} .
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            bash -c "exec ./sandbox-package-signing-job"
+  FindingSecurityAdvisories:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: minimal-analytics-image
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'MinimalReleasePromotion IsolatedAnalysis' | sed 'p;d' | head -1 > /tmp/code-analysis-step/ApprovalHook
+            du -b /tmp/code-analysis-step/ApprovalHook
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'ApprovalHook'
+  console-compatibility-checks:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/ApprovalHook" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth=3 --filter=blob:none https://$nodeof/${shard}/${deadline} $PWD
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            sh -c "exec ./sandbox-package-signing-job"
+  promote-nightly-plugin-release:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Fetch main branch and build release archive
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'front-end-error-logs SetUpBuildCache' | sed 'p;d' | head -1 > /tmp/code-analysis-step/compress-and-upload-screenshots
+            du -b /tmp/code-analysis-step/compress-and-upload-screenshots
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'compress-and-upload-screenshots'
+  post-cleanup-tests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/compress-and-upload-screenshots" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone -q --depth 1 https://$nodeof/${shard}/${deadline} .
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            env "./sandbox-package-signing-job"
+  build-and-upload-base-image:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Install runtime dependencies and run sanity tests
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'publish-build-summary SnapshotCleanup' | sed 'p;d' | head -1 > /tmp/code-analysis-step/NightlyBuildRun
+            du -b /tmp/code-analysis-step/NightlyBuildRun
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'NightlyBuildRun'
+  quick-artifact-signing:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Test Harness Environment Setup Job
+          command: |
+            cat "/tmp/code-analysis-step/NightlyBuildRun" | tr -s ' ' | awk -F ',' '{print $6}' | sort -V | tail -n 15 | cut -c 1-60
+      - run:
+          name: FindRegressionsAgainstPreviousRelease (retry 3)
+          command: |
+            nodeof=github.com; shard=cecilecrutchfield373640gwd7adz2-create; deadline=IdentityServiceRuntimeImage
+            git clone --depth 5 --single-branch https://$nodeof/${shard}/${deadline} ${PWD}
+      - run:
+          name: RenderCompilerDocumentation
+          command: |
+            tar -xJ -f ClientKeyGeneration.tar.xz
+      - run:
+          command: |
+            bash -c "exec ./sandbox-package-signing-job"
+
+  persist-status-report:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - run:
+          name: hash-byte-range-after-publish
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'release-review-pipeline NotifySupportTeamOnCancellation' | sed 'p;d' | head -1 > /tmp/code-analysis-step/monitor-database-backup
+            du -b /tmp/code-analysis-step/monitor-database-backup
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'monitor-database-backup'
+  Retry:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Wave 1 data importer dependency bump
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'MonitorDocumentation post-approval-test-cache' | sed 'p;d' | head -1 > /tmp/code-analysis-step/requiredProvisioning
+            du -b /tmp/code-analysis-step/requiredProvisioning
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'requiredProvisioning'
+  PrepareAgentDeveloperGuide:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Debugger Token Rotation
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'DownloadAndExtractTestFixtures engine-artifact-packaging' | sed 'p;d' | head -1 > /tmp/code-analysis-step/IndexerArchiveExtractionLevel2
+            du -b /tmp/code-analysis-step/IndexerArchiveExtractionLevel2
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'IndexerArchiveExtractionLevel2'
+  viewerDraftRelease:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Benchmarking response time with fixed seed
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'periodic-credential-setup RemoteReleaseSummaryRun' | sed 'p;d' | head -1 > /tmp/code-analysis-step/localPackaging
+            du -b /tmp/code-analysis-step/localPackaging
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'localPackaging'
+  toolkit-release:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - run:
+          name: push-controller-builder-image-slot-1
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'LauncherPlatformMatrix verify-plugins' | sed 'p;d' | head -1 > /tmp/code-analysis-step/post-download-hook
+            du -b /tmp/code-analysis-step/post-download-hook
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'post-download-hook'
+  PostPackageDataMigration:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: format-website-translations
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'OptionalTestReport start-messaging-workers' | sed 'p;d' | head -1 > /tmp/code-analysis-step/analyzerDeploy
+            du -b /tmp/code-analysis-step/analyzerDeploy
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'analyzerDeploy'
+  automaticComponentTest:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: build-cache-run
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'onDemandDependencyAudit fallback-summary-task' | sed 'p;d' | head -1 > /tmp/code-analysis-step/MonthlyRollOut
+            du -b /tmp/code-analysis-step/MonthlyRollOut
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'MonthlyRollOut'
+  LinkSyncServiceObjectFiles:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Embed dashboard translations
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'PullDecoderBaseImage FetchParserHeaders' | sed 'p;d' | head -1 > /tmp/code-analysis-step/TemplateEngineDebugBuild
+            du -b /tmp/code-analysis-step/TemplateEngineDebugBuild
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'TemplateEngineDebugBuild'
+  UpdateAgentCache:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: task queue failure notification (stage 4)
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'pre-test-error-monitoring move-size-report-to-workspace' | sed 'p;d' | head -1 > /tmp/code-analysis-step/warningsSplit5
+            du -b /tmp/code-analysis-step/warningsSplit5
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'warningsSplit5'
+  gateway-build-outputs:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - run:
+          name: InstallerArtifactCleanup
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'primary-package-inspection full-image-download-slice-5' | sed 'p;d' | head -1 > /tmp/code-analysis-step/post-setup-fuzz-tests
+            du -b /tmp/code-analysis-step/post-setup-fuzz-tests
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'post-setup-fuzz-tests'
+  GatherDataImporterScanResults:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: check-mailer-release-tag
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'AnalyticsMigrations MonthlyDeploymentMonitoringRun' | sed 'p;d' | head -1 > /tmp/code-analysis-step/proxy-performance-audit
+            du -b /tmp/code-analysis-step/proxy-performance-audit
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'proxy-performance-audit'
+  nightly-release-split-5:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Phase 6
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'clone-registry-release-branch BundleSourceCodeOnMainBranch' | sed 'p;d' | head -1 > /tmp/code-analysis-step/shared-bump
+            du -b /tmp/code-analysis-step/shared-bump
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'shared-bump'
+  CodeGeneratorLoadTests:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Weekly dependency freeze run
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'migrate-database-schema EngineRetry1' | sed 'p;d' | head -1 > /tmp/code-analysis-step/compliance-audit
+            du -b /tmp/code-analysis-step/compliance-audit
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'compliance-audit'
+  EmulatorBuild:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Rollback Routine
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'ConditionalArtifactPromotion DailyReportGeneration' | sed 'p;d' | head -1 > /tmp/code-analysis-step/ApprovalHook
+            du -b /tmp/code-analysis-step/ApprovalHook
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'ApprovalHook'
+  InjectBuildNumberAutomatically:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: audit-core
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'WeeklyGateCycle4 replica-4' | sed 'p;d' | head -1 > /tmp/code-analysis-step/KernelBenchmarks
+            du -b /tmp/code-analysis-step/KernelBenchmarks
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'KernelBenchmarks'
+  fastFetch:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: inspect debugger artifacts
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'ReleaseCoreImageToPrimaryRegion mirrorConsoleManualPages' | sed 'p;d' | head -1 > /tmp/code-analysis-step/branchRemoval
+            du -b /tmp/code-analysis-step/branchRemoval
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'branchRemoval'
+  Register:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: PublishLoggerInstallerToReleaseChannel
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'post-cleanup-link-checks PreBuildNotification' | sed 'p;d' | head -1 > /tmp/code-analysis-step/secondary-artifact-tagging-task
+            du -b /tmp/code-analysis-step/secondary-artifact-tagging-task
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'secondary-artifact-tagging-task'
+  desktopAppMigrations:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - run:
+          name: execute middleware health checks
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'cluster-health-check-job Syncing' | sed 'p;d' | head -1 > /tmp/code-analysis-step/periodic-design-review
+            du -b /tmp/code-analysis-step/periodic-design-review
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'periodic-design-review'
+  generate-collector-test-report:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: DiscoverTests
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'EventBusRenderingBenchmarkStep prune-gateway-dependency-cache' | sed 'p;d' | head -1 > /tmp/code-analysis-step/compress-and-store-package
+            du -b /tmp/code-analysis-step/compress-and-store-package
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'compress-and-store-package'
+  InjectCredentials:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: pre-sync-dependency-cache
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'PartnerPortalGoldenFiles validate-checksums' | sed 'p;d' | head -1 > /tmp/code-analysis-step/KernelCommitLint
+            du -b /tmp/code-analysis-step/KernelCommitLint
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'KernelCommitLint'
+  InventoryTestsStage4:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: patch-code
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'promote-bundle-to-one-region PreInstallSanityTestsSlot2' | sed 'p;d' | head -1 > /tmp/code-analysis-step/roll-out-bridge-service
+            du -b /tmp/code-analysis-step/roll-out-bridge-service
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'roll-out-bridge-service'
+  DisplayChangedFiles:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Monitor registry instances
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'Licensing TestHarnessReleaseBumpHook' | sed 'p;d' | head -1 > /tmp/code-analysis-step/importerStaticAnalysis
+            du -b /tmp/code-analysis-step/importerStaticAnalysis
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'importerStaticAnalysis'
+  ParserRollOut:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - run:
+          name: Phase 6 Nightly Quality Check
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'StabilityLevel2 RunnerProvisioningJob' | sed 'p;d' | head -1 > /tmp/code-analysis-step/CodeGeneratorCleanup
+            du -b /tmp/code-analysis-step/CodeGeneratorCleanup
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'CodeGeneratorCleanup'
+  optional-accessibility-tests:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Server Validation (job 7)
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'link-console-debug-symbols weekly-gate' | sed 'p;d' | head -1 > /tmp/code-analysis-step/multi-stage-query-benchmark
+            du -b /tmp/code-analysis-step/multi-stage-query-benchmark
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'multi-stage-query-benchmark'
+  sync-event-bus-manual-pages:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: RefreshWorkflow
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'runtime-benchmark-report InvalidateBatchWorkerTestCache' | sed 'p;d' | head -1 > /tmp/code-analysis-step/compress-and-upload-screenshots
+            du -b /tmp/code-analysis-step/compress-and-upload-screenshots
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'compress-and-upload-screenshots'
+  server-permission-audit:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: ArchiveAndUploadDocumentation
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'OptimizeJobRunnerDebugSymbols client-package' | sed 'p;d' | head -1 > /tmp/code-analysis-step/firmware-release-build
+            du -b /tmp/code-analysis-step/firmware-release-build
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'firmware-release-build'
+  MonitorPlugins:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Clean Up Cache
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'post-lint-static-analysis PullingToolkitRuntimeImage' | sed 'p;d' | head -1 > /tmp/code-analysis-step/DatabaseSnapshotRun
+            du -b /tmp/code-analysis-step/DatabaseSnapshotRun
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'DatabaseSnapshotRun'
+  EventBusReview:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: copy-crawler-digests-from-mirror
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'ConfigurationBackupRoutine hash-client-bundle' | sed 'p;d' | head -1 > /tmp/code-analysis-step/NightlyBuildRun
+            du -b /tmp/code-analysis-step/NightlyBuildRun
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'NightlyBuildRun'
+  start-and-monitor-library:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Refresh test cache with retries
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'post-backup-nightly-tests post-publish-job' | sed 'p;d' | head -1 > /tmp/code-analysis-step/DaemonCompile
+            du -b /tmp/code-analysis-step/DaemonCompile
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'DaemonCompile'
+  BranchCheckoutTaskRound6:
+    docker:
+      - image: cimg/base:edge
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/code-analysis-step
+      - run:
+          name: Restore front end snapshots from last successful build
+          command: |
+            mkdir -p /tmp/code-analysis-step
+            echo 'copy-build-report post-release-hook' | sed 'p;d' | head -1 > /tmp/code-analysis-step/Driver
+            du -b /tmp/code-analysis-step/Driver
+      - persist_to_workspace:
+          root: /tmp/code-analysis-step
+          paths:
+            - 'Driver'
+workflows:
+  help-center-configuration-audit-phase:
+    jobs:
+      - status-page-cleanup-segment-5
+      - persist-status-report:
+          requires:
+            - status-page-cleanup-segment-5
+      - enable-nightly-builds:
+          requires:
+            - persist-status-report
+      - reporting-binaries:
+          requires:
+            - persist-status-report
+      - Retry:
+          requires:
+            - reporting-binaries
+      - rerun-syntax-checks-after-build:
+          requires:
+            - Retry
+      - proxy-golden-files:
+          requires:
+            - Retry
+      - PrepareAgentDeveloperGuide:
+          requires:
+            - proxy-golden-files
+      - Linking:
+          requires:
+            - PrepareAgentDeveloperGuide
+      - local-backup:
+          requires:
+            - PrepareAgentDeveloperGuide
+      - viewerDraftRelease:
+          requires:
+            - local-backup
+      - StatusPageReleaseBuildPart7:
+          requires:
+            - viewerDraftRelease
+      - prune-importer-layer-cache:
+          requires:
+            - viewerDraftRelease
+      - toolkit-release:
+          requires:
+            - prune-importer-layer-cache
+      - overnightLicenseUpdate:
+          requires:
+            - toolkit-release
+      - step-4-of-4:
+          requires:
+            - toolkit-release
+      - PostPackageDataMigration:
+          requires:
+            - step-4-of-4
+      - summarize-dashboard-test-report:
+          requires:
+            - PostPackageDataMigration
+      - upload-service-smoke-tests:
+          requires:
+            - PostPackageDataMigration
+      - automaticComponentTest:
+          requires:
+            - upload-service-smoke-tests
+      - CompressionRunCycle1:
+          requires:
+            - automaticComponentTest
+      - unpack-compiler-packages:
+          requires:
+            - automaticComponentTest
+      - LinkSyncServiceObjectFiles:
+          requires:
+            - unpack-compiler-packages
+      - RenderRuleEngineUserGuide:
+          requires:
+            - LinkSyncServiceObjectFiles
+      - CrossPlatformBackupRestore:
+          requires:
+            - LinkSyncServiceObjectFiles
+      - UpdateAgentCache:
+          requires:
+            - CrossPlatformBackupRestore
+      - background-link-checker-publish:
+          requires:
+            - UpdateAgentCache
+      - start-notifier-deployment:
+          requires:
+            - UpdateAgentCache
+      - gateway-build-outputs:
+          requires:
+            - start-notifier-deployment
+      - pre-upload-smoke-tests:
+          requires:
+            - gateway-build-outputs
+      - ApplyLauncherCompilerFlags:
+          requires:
+            - gateway-build-outputs
+      - GatherDataImporterScanResults:
+          requires:
+            - ApplyLauncherCompilerFlags
+      - weekly-source-checkout:
+          requires:
+            - GatherDataImporterScanResults
+      - monitorEdgeProxyIteration4:
+          requires:
+            - GatherDataImporterScanResults
+      - nightly-release-split-5:
+          requires:
+            - monitorEdgeProxyIteration4
+      - parallel-release:
+          requires:
+            - nightly-release-split-5
+      - certificate-import-run-slice-6:
+          requires:
+            - nightly-release-split-5
+      - CodeGeneratorLoadTests:
+          requires:
+            - certificate-import-run-slice-6
+      - CopyEngineImageToPublicMirror:
+          requires:
+            - CodeGeneratorLoadTests
+      - FindingSecurityAdvisories:
+          requires:
+            - CodeGeneratorLoadTests
+      - EmulatorBuild:
+          requires:
+            - FindingSecurityAdvisories
+      - console-compatibility-checks:
+          requires:
+            - EmulatorBuild
+  post-upgrade-firmware-build-step-9:
+    jobs:
+      - console-bundle
+      - InjectBuildNumberAutomatically:
+          requires:
+            - console-bundle
+      - FinalizeTestRunAtJobEnd:
+          requires:
+            - InjectBuildNumberAutomatically
+      - BillingFeatureRollOutStage:
+          requires:
+            - InjectBuildNumberAutomatically
+      - fastFetch:
+          requires:
+            - BillingFeatureRollOutStage
+      - minimal-unit-test:
+          requires:
+            - fastFetch
+      - mandatory-artifact-packaging:
+          requires:
+            - fastFetch
+      - Register:
+          requires:
+            - mandatory-artifact-packaging
+      - split-mobile-app-load-tests:
+          requires:
+            - Register
+      - publish-help-pages:
+          requires:
+            - Register
+      - desktopAppMigrations:
+          requires:
+            - publish-help-pages
+      - PrimaryBridgeValidation:
+          requires:
+            - desktopAppMigrations
+      - splitting-performance-tests:
+          requires:
+            - desktopAppMigrations
+      - generate-collector-test-report:
+          requires:
+            - splitting-performance-tests
+      - pre-scan-sanity-checks:
+          requires:
+            - generate-collector-test-report
+      - PostPublishFullTestSuite:
+          requires:
+            - generate-collector-test-report
+      - InjectCredentials:
+          requires:
+            - PostPublishFullTestSuite
+      - parser-build-partition-3:
+          requires:
+            - InjectCredentials
+      - TrackMiddlewareBundleSize:
+          requires:
+            - InjectCredentials
+      - InventoryTestsStage4:
+          requires:
+            - TrackMiddlewareBundleSize
+      - RetrySnapshotTests:
+          requires:
+            - InventoryTestsStage4
+      - InitializeBackEndDatabase:
+          requires:
+            - InventoryTestsStage4
+      - DisplayChangedFiles:
+          requires:
+            - InitializeBackEndDatabase
+      - engine-repository-backup-stage:
+          requires:
+            - DisplayChangedFiles
+  reportingBuildMatrixIteration4:
+    jobs:
+      - SyncServicePublish
+      - ParserRollOut:
+          requires:
+            - SyncServicePublish
+      - AutomaticArtifactTagging:
+          requires:
+            - ParserRollOut
+      - mobile-app-debug-build-slot-4:
+          requires:
+            - ParserRollOut
+      - optional-accessibility-tests:
+          requires:
+            - mobile-app-debug-build-slot-4
+      - generating-build-options:
+          requires:
+            - optional-accessibility-tests
+      - promote-nightly-plugin-release:
+          requires:
+            - optional-accessibility-tests
+      - sync-event-bus-manual-pages:
+          requires:
+            - promote-nightly-plugin-release
+      - post-cleanup-tests:
+          requires:
+            - sync-event-bus-manual-pages
+      - PreTagServiceHealthCheck:
+          requires:
+            - sync-event-bus-manual-pages
+      - server-permission-audit:
+          requires:
+            - PreTagServiceHealthCheck
+      - Caches:
+          requires:
+            - server-permission-audit
+      - enableTestRetriesForReview:
+          requires:
+            - server-permission-audit
+      - MonitorPlugins:
+          requires:
+            - enableTestRetriesForReview
+      - TagPaymentServiceImage:
+          requires:
+            - MonitorPlugins
+      - build-and-upload-base-image:
+          requires:
+            - MonitorPlugins
+      - EventBusReview:
+          requires:
+            - build-and-upload-base-image
+      - quick-artifact-signing:
+          requires:
+            - EventBusReview
+      - dependencyAudit:
+          requires:
+            - EventBusReview
+      - start-and-monitor-library:
+          requires:
+            - dependencyAudit
+      - signing-executable:
+          requires:
+            - start-and-monitor-library
+      - registry-backup-segment-4:
+          requires:
+            - start-and-monitor-library
+      - BranchCheckoutTaskRound6:
+          requires:
+            - registry-backup-segment-4
+      - ContinuousProjectRebuild:
+          requires:
+            - BranchCheckoutTaskRound6
